@@ -1,6 +1,7 @@
 -- Default customization using _G variables
 _G.FlyKey = _G.FlyKey or "e" -- Key to toggle fly mode
 _G.MaxFlightSpeed = _G.MaxFlightSpeed or 50 -- Maximum flight speed
+_G.NoClip = _G.NoClip or false -- Enable or disable noclip during flight
 
 -- Waits until the player and necessary components are loaded
 repeat wait() until game.Players.LocalPlayer and game.Players.LocalPlayer.Character 
@@ -16,13 +17,40 @@ local plr = game.Players.LocalPlayer
 local character = plr.Character
 local torso = character.Torso
 local flying = false
+local noclip = false
 local speed = 0
 local maxSpeed = _G.MaxFlightSpeed
 local control = {f = 0, b = 0, l = 0, r = 0}
 local bg, bv = nil, nil
+local SteppedConnection
+
+-- NoClip function
+local function SetNoClip(state)
+    if state and _G.NoClip then
+        noclip = true
+        SteppedConnection = game:GetService("RunService").Stepped:Connect(function()
+            for _, v in pairs(character:GetChildren()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = false
+                end
+            end
+        end)
+    elseif SteppedConnection then
+        SteppedConnection:Disconnect()
+        noclip = false
+        for _, v in pairs(character:GetChildren()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = true
+            end
+        end
+    end
+end
 
 -- Fly function
 local function Fly()
+    -- Enable noclip if configured
+    SetNoClip(true)
+
     -- BodyGyro and BodyVelocity setup
     bg = Instance.new("BodyGyro", torso)
     bg.P = 90000
@@ -61,6 +89,9 @@ local function Fly()
     bg:Destroy()
     bv:Destroy()
     character.Humanoid.PlatformStand = false
+
+    -- Disable noclip if enabled
+    SetNoClip(false)
 end
 
 -- Handle key presses
