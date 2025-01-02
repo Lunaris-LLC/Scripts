@@ -1,3 +1,7 @@
+-- Default customization using _G variables
+_G.FlyKey = _G.FlyKey or "e" -- Key to toggle fly mode
+_G.MaxFlightSpeed = _G.MaxFlightSpeed or 50 -- Maximum flight speed
+
 -- Waits until the player and necessary components are loaded
 repeat wait() until game.Players.LocalPlayer and game.Players.LocalPlayer.Character 
     and game.Players.LocalPlayer.Character:FindFirstChild("Torso") 
@@ -13,18 +17,12 @@ local character = plr.Character
 local torso = character.Torso
 local flying = false
 local speed = 0
-local maxSpeed = 50
+local maxSpeed = _G.MaxFlightSpeed
 local control = {f = 0, b = 0, l = 0, r = 0}
 local bg, bv = nil, nil
 
 -- Fly function
 local function Fly()
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "Fly Mode";
-        Text = "Activated";
-        Duration = 2;
-    })
-
     -- BodyGyro and BodyVelocity setup
     bg = Instance.new("BodyGyro", torso)
     bg.P = 90000
@@ -63,18 +61,12 @@ local function Fly()
     bg:Destroy()
     bv:Destroy()
     character.Humanoid.PlatformStand = false
-
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "Fly Mode";
-        Text = "Deactivated";
-        Duration = 2;
-    })
 end
 
 -- Handle key presses
 mouse.KeyDown:Connect(function(key)
     key = key:lower()
-    if key == "e" then
+    if key == _G.FlyKey then
         flying = not flying
         if flying then
             Fly()
